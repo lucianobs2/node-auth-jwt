@@ -1,33 +1,22 @@
 import express from 'express';
+import { routeAdapter } from './adapters/routeAdapter';
+import { middlewareAdapter } from './adapters/middlewareAdapter';
 import { makeSignUpController } from '../application/factories/makeSignUpController';
 import { makeSignInController } from '../application/factories/makeSignInController';
+import { makeListLeadsController } from '../application/factories/makeListLeadsController';
+import { makeAuthenticationMiddleware } from '../application/factories/makeAuthenticationMiddleware';
 
 const app = express();
 app.use(express.json());
 
-app.post('/sign-up', async (request, response) => {
-  const signUpController = makeSignUpController();
+app.post('/sign-up', routeAdapter(makeSignUpController()));
+app.post('/sign-in', routeAdapter(makeSignInController()));
 
-  const { body, statusCode } = await signUpController.handle({
-    body: request.body,
-  });
-
-  response.status(statusCode).json({
-    message: body,
-  });
-});
-
-app.post('/sign-in', async (request, response) => {
-  const signInController = makeSignInController();
-
-  const { body, statusCode } = await signInController.handle({
-    body: request.body,
-  });
-
-  response.status(statusCode).json({
-    message: body,
-  });
-});
+app.get(
+  '/leads',
+  Object(middlewareAdapter(makeAuthenticationMiddleware())),
+  routeAdapter(makeListLeadsController())
+);
 
 app.listen(3001, () => {
   console.log('⭐ Server is running on http://localhost:3001 ⭐');

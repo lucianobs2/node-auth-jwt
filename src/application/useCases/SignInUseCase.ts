@@ -19,6 +19,8 @@ export class SignInUseCase {
       where: { email },
     });
 
+    console.log(email, password);
+
     if (!account) {
       throw new InvalidCredentials();
     }
