@@ -19,8 +19,6 @@ export class SignInUseCase {
       where: { email },
     });
 
-    console.log(email, password);
-
     if (!account) {
       throw new InvalidCredentials();
     }
@@ -31,9 +29,13 @@ export class SignInUseCase {
       throw new InvalidCredentials();
     }
 
-    const accessToken = sign({ sub: account.id }, env.jwtSecret, {
-      expiresIn: '1d',
-    });
+    const accessToken = sign(
+      { sub: account.id, role: account.role },
+      env.jwtSecret,
+      {
+        expiresIn: '1d',
+      }
+    );
 
     return { accessToken };
   }

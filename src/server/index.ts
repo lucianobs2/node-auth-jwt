@@ -5,6 +5,7 @@ import { makeSignUpController } from '../application/factories/makeSignUpControl
 import { makeSignInController } from '../application/factories/makeSignInController';
 import { makeListLeadsController } from '../application/factories/makeListLeadsController';
 import { makeAuthenticationMiddleware } from '../application/factories/makeAuthenticationMiddleware';
+import { makeAuthorizationMiddleware } from '../application/factories/makeAuthorizationMiddleware';
 
 const app = express();
 app.use(express.json());
@@ -16,6 +17,15 @@ app.get(
   '/leads',
   Object(middlewareAdapter(makeAuthenticationMiddleware())),
   routeAdapter(makeListLeadsController())
+);
+
+app.post(
+  '/leads',
+  Object(middlewareAdapter(makeAuthenticationMiddleware())),
+  Object(middlewareAdapter(makeAuthorizationMiddleware(['ADMIN']))),
+  (request, response) => {
+    response.json({ created: true });
+  }
 );
 
 app.listen(3001, () => {
